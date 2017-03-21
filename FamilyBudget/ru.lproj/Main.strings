@@ -1,0 +1,42 @@
+
+/* Class = "UILabel"; text = "-13 000 Р"; ObjectID = "2WP-XC-TM1"; */
+"2WP-XC-TM1.text" = "-13 000 Р";
+
+/* Class = "UILabel"; text = "Расходы: "; ObjectID = "BXd-4Q-Fcf"; */
+"BXd-4Q-Fcf.text" = "Расходы: ";
+
+/* Class = "UILabel"; text = "100 000 Р"; ObjectID = "G02-8Q-PIB"; */
+"G02-8Q-PIB.text" = "100 000 Р";
+
+/* Class = "UIButton"; normalTitle = "новый расход"; ObjectID = "G7G-Im-0ye"; */
+"G7G-Im-0ye.normalTitle" = "новый расход";
+
+/* Class = "UILabel"; text = "Доходы: "; ObjectID = "QR3-aJ-J1s"; */
+"QR3-aJ-J1s.text" = "Доходы: ";
+
+/* Class = "UILabel"; text = "Расходы по категориям"; ObjectID = "Yk8-g7-vDM"; */
+"Yk8-g7-vDM.text" = "Расходы по категориям";
+
+/* Class = "UIButton"; normalTitle = "новый доход"; ObjectID = "caX-vC-Uxv"; */
+"caX-vC-Uxv.normalTitle" = "новый доход";
+
+/* Class = "UILabel"; text = "200 000 Р"; ObjectID = "dBZ-Mh-h4D"; */
+"dBZ-Mh-h4D.text" = "200 000 Р";
+
+/* Class = "UILabel"; text = "Итого: "; ObjectID = "hgH-My-Ygu"; */
+"hgH-My-Ygu.text" = "Итого: ";
+
+/* Class = "UILabel"; text = "Продукты питания"; ObjectID = "lul-Og-rFE"; */
+"lul-Og-rFE.text" = "Продукты питания";
+
+/* Class = "UILabel"; text = "Январь 2017"; ObjectID = "pLB-xy-2E0"; */
+"pLB-xy-2E0.text" = "Январь 2017";
+
+/* Class = "UILabel"; text = "100 000 Р"; ObjectID = "rro-iN-cbp"; */
+"rro-iN-cbp.text" = "100 000 Р";
+
+/* Class = "UINavigationItem"; title = "Текущий месяц"; ObjectID = "scy-89-hH9"; */
+"scy-89-hH9.title" = "Текущий месяц";
+
+/* Class = "UITabBarItem"; title = "Текущий месяц"; ObjectID = "zQb-yA-6ET"; */
+"zQb-yA-6ET.title" = "Текущий месяц";
