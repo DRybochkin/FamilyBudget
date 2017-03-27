@@ -6,8 +6,8 @@
 //  Copyright © 2017 Dmitry Rybochkin. All rights reserved.
 //
 
-import UIKit
 import os.log
+import UIKit
 
 protocol SelectCategoryDelegate: NSObjectProtocol {
     var categoryId: Int64! {
@@ -23,10 +23,10 @@ class TransactionEditTableViewController: BaseTableViewController, UIPopoverPres
     @IBOutlet weak var categoryLabel: UILabel!
     @IBOutlet weak var saveBarButton: UIBarButtonItem!
     @IBOutlet weak var errorAmountLabel: UILabel!
-    
+
     private var transaction: DOTransaction!
     private var category: DOCategory!
-    
+
     var transationId: Int64!
     var categoryType: CategoryTypes!
     var categoryId: Int64! {
@@ -38,24 +38,24 @@ class TransactionEditTableViewController: BaseTableViewController, UIPopoverPres
             }
         }
     }
-    
+
     override func loadData() {
         if (transationId != nil && transationId > 0) {
             transaction = DOTransactionDataHelper.find(id: transationId)
             category = DOCategoryDataHelper.find(id: transaction.categoryId)
         }
     }
-    
+
     override func reloadData() {
         loadData()
 
         if (transaction != nil) {
-            if (category?.categoryType == CategoryTypes.Cost) {
+            if (category?.categoryType == CategoryTypes.cost) {
                 amount.text = transaction?.transactionCost.toString(locale: "ru_RU")
             } else {
                 amount.text = transaction?.transactionProfit.toString(locale: "ru_RU")
             }
-            
+
             dueDate.date = (transaction?.transactionDueDate.date())!
             transactionDescription.text = transaction?.transactionDescription
             categoryLabel.text = category?.categoryTitle
@@ -67,7 +67,7 @@ class TransactionEditTableViewController: BaseTableViewController, UIPopoverPres
         }
         checkState()
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         reloadData()
@@ -81,30 +81,30 @@ class TransactionEditTableViewController: BaseTableViewController, UIPopoverPres
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return UIModalPresentationStyle.currentContext
     }
-    
+
     private func checkState() {
         let sum: Double = (amount.text?.toNumber()?.doubleValue)!
         saveBarButton.isEnabled = sum > 0.0 && transaction != nil && categoryId != nil && (category?.categoryId)! > 0 && (sum != transaction.transactionCost.doubleValue + transaction.transactionProfit.doubleValue || category.categoryId != transaction.categoryId || transaction.transactionDueDate != Int64(dueDate.date.timeIntervalSince1970) || transaction.transactionDescription != transactionDescription.text)
         errorAmountLabel.isHidden = sum > 0.0
         categoryLabel.textColor = transaction.categoryId >= 0 ? UIColor.black : UIColor.red
     }
-    
+
     @IBAction func editingChanged(_ sender: Any) {
         checkState()
     }
-    
+
     @IBAction func cancel(_ sender: UIBarButtonItem) {
         // Depending on style of presentation (modal or push presentation), this view controller needs to be dismissed in two different ways.
-        
+
         if let tmpController = presentingViewController {
-            dismiss(animated: true, completion: { ()->Void in
+            dismiss(animated: true, completion: { () -> Void in
                 tmpController.dismiss(animated: true, completion: nil)
             })
         } else {
             fatalError("The ViewController is not inside a navigation controller.")
         }
     }
-    
+
     @IBAction func save(_ sender: Any) {
         let numberAmount: NSNumber = (amount.text?.toNumber())!
         if (transaction != nil && numberAmount.doubleValue != 0 && (category?.categoryId)! > 0) {
@@ -114,30 +114,30 @@ class TransactionEditTableViewController: BaseTableViewController, UIPopoverPres
             if (transaction.transactionId > 0) {
                 transaction.transactionUploaded = 2
             }
-            
-            if (category?.categoryType == CategoryTypes.Cost) {
+
+            if (category?.categoryType == CategoryTypes.cost) {
                 transaction?.transactionCost = numberAmount
             } else {
                 transaction?.transactionProfit = numberAmount
             }
-            
+
             _ = DOTransactionDataHelper.resolve(item: transaction!)
             dismiss(animated: true, completion: nil)
         } else {
             /*show error*/
         }
     }
-    
+
     // This method lets you configure a view controller before it's presented.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
+
         super.prepare(for: segue, sender: sender)
-        
+
         if (segue.identifier == "SelectCategory") {
             guard let nc = segue.destination as? UINavigationController else {
                 fatalError("Unexpected destination: \(segue.destination)")
             }
-            
+
             guard let vc = nc.viewControllers[0] as? SelectCategoryTableViewController else {
                 fatalError("Unexpected destination: \(segue.destination)")
             }
@@ -148,7 +148,7 @@ class TransactionEditTableViewController: BaseTableViewController, UIPopoverPres
                 vc.categoryType = categoryType
             }
             vc.selectCategoryDelegate = self
-            
+
             return
         }
     }

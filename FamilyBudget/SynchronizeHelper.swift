@@ -12,12 +12,12 @@ typealias UploadCallback = () -> Void
 
 class SynchronizeHelper {
     static func synchronizeWithServer(needPost: Bool = true) {
-        if (SQLiteDataStore.sharedInstance.currentUser.userGroupKeyword.characters.count <= 0) {
+        if (SQLiteDataStore.sharedInstance.currentUser.userGroupKeyword.characters.isEmpty) {
             return
         }
 
         NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "synchronizeWithServer", 0.0])
-        
+
         SQLiteDataStore.sharedInstance.currentUser.isConnected = false
         _ = ServerImplementation.sharedInstance.connectToServer(user: SQLiteDataStore.sharedInstance.currentUser, callback: { (user: DOUser?) -> Void in
             if (user != nil) {
@@ -39,28 +39,28 @@ class SynchronizeHelper {
                     SQLiteDataStore.sharedInstance.currentUser = user!
                     SQLiteDataStore.sharedInstance.currentUser.isConnected = true
                 }
-                
+
                 let userDefaul = UserDefaults(suiteName: "group.FamilyBudget")
                 userDefaul?.set(SQLiteDataStore.sharedInstance.currentUser.userAccessToken, forKey: "accessToken")
                 userDefaul?.set(SQLiteDataStore.sharedInstance.currentUser.userId, forKey: "userId")
                 userDefaul?.set(SQLiteDataStore.sharedInstance.options.lastTick, forKey: "lastTick")
-                
+
                 NotificationCenter.default.post(name: Notification.Name.FamilyBudgetCurrentUserChanged, object: ["SynchronizeHelper", "synchronizeWithServer", user!])
-                
+
                 upload(needPost: needPost, callback: {
                     download(needPost: needPost)
                 })
             }
         })
     }
-    
+
     static func upload(needPost: Bool = true, callback: UploadCallback?) {
         NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "upload", 0.0])
 
         if (SQLiteDataStore.sharedInstance.currentUser.isConnected) {
             let categories = DOCategoryDataHelper.getAllForUpload()
             let categoryGroup = DispatchGroup()
-            print("start load categories ");
+            print("start load categories ")
             var index: Float = 1.0
             for category in categories {
                 categoryGroup.enter()
@@ -76,15 +76,15 @@ class SynchronizeHelper {
                         }
                     }
                     categoryGroup.leave()
-                    NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "upload", (index*0.2)/Float(categories.count)])
-                    index = index + 1.0
+                    NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "upload", (index * 0.2) / Float(categories.count)])
+                    index += 1.0
                 })
             }
-            
+
             categoryGroup.notify(queue: .main, execute: {
                 print("categories loaded")
-                
-                print("start load transactions ");
+
+                print("start load transactions ")
 
                 let transactionGroup = DispatchGroup()
                 let transactions = DOTransactionDataHelper.getAllForUpload()
@@ -101,15 +101,15 @@ class SynchronizeHelper {
                             }
                         }
                         transactionGroup.leave()
-                        NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "upload", 0.2 + (index*0.2)/Float(transactions.count)])
-                        index = index + 1.0
+                        NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "upload", 0.2 + (index * 0.2) / Float(transactions.count)])
+                        index += 1.0
                     })
                 }
-                
+
                 transactionGroup.notify(queue: .main, execute: {
                     print("transactions loaded")
 
-                    if (needPost && (transactions.count > 0 || categories.count > 0)) {
+                    if (needPost && (!transactions.isEmpty || !categories.isEmpty)) {
                         NotificationCenter.default.post(name: Notification.Name.FamilyBudgetNeedReloadData, object: ["SynchronizeHelper", "upload"])
                     }
                     if (callback != nil) {
@@ -126,7 +126,7 @@ class SynchronizeHelper {
             }
         }
     }
-    
+
     static func download(needPost: Bool = true) {
         if (SQLiteDataStore.sharedInstance.currentUser.isConnected) {
             ServerImplementation.sharedInstance.getTick(callback: { (tick: Int64) -> Void in
@@ -134,37 +134,37 @@ class SynchronizeHelper {
                     var index: Float = 1.0
                     ServerImplementation.sharedInstance.getUsers(callback: { (users: [DOUser]) -> Void in
                         for user in users {
-                            if (user.userId != SQLiteDataStore.sharedInstance.currentUser.userId){
+                            if (user.userId != SQLiteDataStore.sharedInstance.currentUser.userId) {
                                 _ = DOUserDataHelper.resolve(item: user, needPost: false)
                             }
-                            NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "download", 0.4 + (index*0.2)/Float(users.count)])
-                            index = index + 1.0
+                            NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "download", 0.4 + (index * 0.2) / Float(users.count)])
+                            index += 1.0
                         }
                         ServerImplementation.sharedInstance.getCategories(callback: { (categories: [DOCategory] ) -> Void in
                             var index: Float = 1.0
                             for category in categories {
                                 _ = DOCategoryDataHelper.resolve(item: category, needPost: false)
-                                NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "download", 0.6 + (index*0.2)/Float(categories.count)])
-                                index = index + 1.0
+                                NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "download", 0.6 + (index * 0.2) / Float(categories.count)])
+                                index += 1.0
                             }
                             ServerImplementation.sharedInstance.getTransactions(callback: { (transactions: [DOTransaction] ) -> Void in
                                 var index: Float = 1.0
                                 for transaction in transactions {
                                     _ = DOTransactionDataHelper.resolve(item: transaction, needPost: false)
-                                    NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "download", 0.8 + (index*0.2)/Float(transactions.count)])
-                                    index = index + 1.0
+                                    NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataWillLoad, object: ["SynchronizeHelper", "download", 0.8 + (index * 0.2) / Float(transactions.count)])
+                                    index += 1.0
                                 }
                                 SQLiteDataStore.sharedInstance.options.lastTick = tick
                                 _ = DOOptionsDataHelper.update(item: SQLiteDataStore.sharedInstance.options, needPost: false)
 
-                                if (needPost && (users.count > 0 || categories.count > 0 || transactions.count > 0)) {
+                                if (needPost && (!users.isEmpty || !categories.isEmpty || !transactions.isEmpty)) {
                                     NotificationCenter.default.post(name: Notification.Name.FamilyBudgetNeedReloadData, object: ["SynchronizeHelper", "download"])
                                 }
                                 NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDataDidLoad, object: ["SynchronizeHelper", "download"])
                             })
                         })
                     })
-                    
+
                 }
             })
         } else {

@@ -57,6 +57,7 @@
 		4E89480E1E795A18008925E8 /* SynchronizeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB0A1541E76929D00835D23 /* SynchronizeHelper.swift */; };
 		4E89480F1E795A27008925E8 /* DataMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB0A1521E6D932D00835D23 /* DataMigration.swift */; };
 		4E8948141E797B50008925E8 /* DateValueFormater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2491AC1E4340AC003CB2C2 /* DateValueFormater.swift */; };
+		4E987DFF1E894B7A0019D619 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 4E987DFE1E894B7A0019D619 /* .swiftlint.yml */; };
 		4EA701F41E28F92900D42BA2 /* NamedPieTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA701F21E28F92900D42BA2 /* NamedPieTableViewCell.swift */; };
 		4EA701FC1E28F97E00D42BA2 /* ColoredImageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA701FA1E28F97E00D42BA2 /* ColoredImageTableViewCell.swift */; };
 		4EA702051E2908D700D42BA2 /* TotalTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA702031E2908D700D42BA2 /* TotalTableViewCell.swift */; };
@@ -154,6 +155,7 @@
 		4E8947FA1E794BF1008925E8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4E8948121E796C11008925E8 /* FamilyBudget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FamilyBudget.entitlements; sourceTree = "<group>"; };
 		4E8948131E796CC7008925E8 /* widget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = widget.entitlements; sourceTree = "<group>"; };
+		4E987DFE1E894B7A0019D619 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
 		4EA701F21E28F92900D42BA2 /* NamedPieTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NamedPieTableViewCell.swift; sourceTree = "<group>"; };
 		4EA701FA1E28F97E00D42BA2 /* ColoredImageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColoredImageTableViewCell.swift; sourceTree = "<group>"; };
 		4EA702031E2908D700D42BA2 /* TotalTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TotalTableViewCell.swift; sourceTree = "<group>"; };
@@ -285,6 +287,7 @@
 		4E6250C11E13B24900A4CECA = {
 			isa = PBXGroup;
 			children = (
+				4E987DFE1E894B7A0019D619 /* .swiftlint.yml */,
 				4E8947F41E794BF1008925E8 /* Widget */,
 				4E6250CC1E13B24900A4CECA /* FamilyBudget */,
 				4E6250E41E13B24A00A4CECA /* FamilyBudgetTests */,
@@ -460,6 +463,7 @@
 				8F557078EBD27856BB71BBF1 /* [CP] Embed Pods Frameworks */,
 				B07702025CCB3E62D17F8395 /* [CP] Copy Pods Resources */,
 				4E8948011E794BF1008925E8 /* Embed App Extensions */,
+				4E987DFC1E8947BA0019D619 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -604,6 +608,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E987DFF1E894B7A0019D619 /* .swiftlint.yml in Resources */,
 				4E1CE4381E4A3002000F1CA2 /* Main.storyboard in Resources */,
 				4E6250DB1E13B24A00A4CECA /* LaunchScreen.storyboard in Resources */,
 				4E6250D81E13B24A00A4CECA /* Assets.xcassets in Resources */,
@@ -694,6 +699,19 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
+		};
+		4E987DFC1E8947BA0019D619 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\nswiftlint autocorrect\nswiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
 		};
 		535EF5A86A936D9FF0D654DA /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

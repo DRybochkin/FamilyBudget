@@ -11,21 +11,19 @@ import SwiftyJSON
 
 enum NamePropertyMapRules: Int {
     case
-        None = 0,
-        IgnoringCase = 1,
-        FirstSymbolToUpper = 2,
-        FirstSymbolToLower = 3
+        none = 0,
+        ignoringCase = 1,
+        firstSymbolToUpper = 2,
+        firstSymbolToLower = 3
 }
 
 class JSONModel: NSObject, Reflectable {
     var keyMapper: [String: String]! {
-        get {
-            return [:]
-        }
+        return [:]
     }
-    
-    var namePropertyRule: NamePropertyMapRules = NamePropertyMapRules.IgnoringCase
-    
+
+    var namePropertyRule: NamePropertyMapRules = NamePropertyMapRules.ignoringCase
+
     private func valueTo(_ value: Any?, _ property: SerializeProperty) -> Any? {
         if (value is NSNumber) {
             return numberTo(value as? NSNumber, property)
@@ -79,11 +77,11 @@ class JSONModel: NSObject, Reflectable {
         }
         return nil
     }
-    
+
     private func nullTo(_ value: Any?, _ property: SerializeProperty) -> Any? {
         return nil
     }
-    
+
     private func boolTo(_ value: Bool?, _ property: SerializeProperty) -> Any? {
         let type = property.type
         if (type is Int.Type || type is ImplicitlyUnwrappedOptional<Int>.Type || type is Optional<Int>.Type) {
@@ -107,7 +105,7 @@ class JSONModel: NSObject, Reflectable {
         } else if (type is Float80.Type || type is ImplicitlyUnwrappedOptional<Float80>.Type || type is Optional<Float80>.Type) {
             return Float80(value! ? 1 : 0)
         } else if (type is NSNumber.Type || type is ImplicitlyUnwrappedOptional<NSNumber>.Type || type is Optional<NSNumber>.Type) {
-            return NSNumber.init(value: value!)
+            return NSNumber(value: value!)
         } else if (type is String.Type || type is ImplicitlyUnwrappedOptional<String>.Type || type is Optional<String>.Type) {
             return value! ? "true" : "false"
         } else if (type is Bool.Type || type is ImplicitlyUnwrappedOptional<Bool>.Type || type is Optional<Bool>.Type) {
@@ -189,19 +187,15 @@ class JSONModel: NSObject, Reflectable {
             numberFormatter.numberStyle = NumberFormatter.Style.decimal
             numberFormatter.usesGroupingSeparator = false
             numberFormatter.currencyDecimalSeparator = NSLocale.current.decimalSeparator
-            
+
             var str = value?.replacingOccurrences(of: ".", with: NSLocale.current.decimalSeparator!)
             str = str?.replacingOccurrences(of: ",", with: NSLocale.current.decimalSeparator!)
-            
+
             var strArray = str?.components(separatedBy: CharacterSet(charactersIn: "0123456789" + NSLocale.current.decimalSeparator!).inverted)
-            var found = true
-            let count: Int = (strArray?.count)!
-            for i in 0 ..< count {
-                if (strArray?[i] == NSLocale.current.decimalSeparator) {
-                    if (found) {
-                        strArray?[i] = ""
-                    }
-                    found = false
+            if let count: Int = strArray?.count {
+                for i in 0 ..< count where strArray?[i] == NSLocale.current.decimalSeparator {
+                    strArray?[i] = ""
+                    break
                 }
             }
             str = strArray?.joined(separator: "")
@@ -222,11 +216,11 @@ class JSONModel: NSObject, Reflectable {
         }
         return value
     }
-    
+
     private func capitalizeFirst(_ string: String, upperCase: Bool = true) -> String {
-        if (string.characters.count > 0) {
+        if (!string.characters.isEmpty) {
             var firstCharacter = String(string.characters.first!)
-            if (upperCase){
+            if (upperCase) {
                 firstCharacter = firstCharacter.uppercased()
             } else {
                 firstCharacter = firstCharacter.lowercased()
@@ -236,17 +230,17 @@ class JSONModel: NSObject, Reflectable {
         }
         return string
     }
-    
+
     func willPropertyChanged(_ value: Any, _ property: SerializeProperty) -> Bool {
         return false
     }
-    
+
     func setCustomValue(_ value: Any, _ property: SerializeProperty) {
         if (!willPropertyChanged(value, property)) {
             super.setValue(value, forKey: property.name)
         }
     }
-    
+
     init!(json: JSON?) {
         super.init()
         if (json != nil) {
@@ -254,8 +248,8 @@ class JSONModel: NSObject, Reflectable {
             for property in properties() {
                 var propertyName = property.name
                 var found: Bool = false
-                
-                if (namePropertyRule == .IgnoringCase) {
+
+                if (namePropertyRule == .ignoringCase) {
                     if (map.keys.contains(property.name)) {
                         propertyName = map[property.name]!
                     }
@@ -266,7 +260,7 @@ class JSONModel: NSObject, Reflectable {
                         }
                         return false
                     })!
-                } else if (namePropertyRule == .FirstSymbolToUpper) {
+                } else if (namePropertyRule == .firstSymbolToUpper) {
                     if (map.keys.contains(property.name)) {
                         propertyName = map[property.name]!
                     }
@@ -276,8 +270,8 @@ class JSONModel: NSObject, Reflectable {
                             return true
                         }
                         return false
-                        })!
-                } else if (namePropertyRule == .FirstSymbolToLower) {
+                    })!
+                } else if (namePropertyRule == .firstSymbolToLower) {
                     if (map.keys.contains(property.name)) {
                         propertyName = map[property.name]!
                     }
@@ -287,8 +281,8 @@ class JSONModel: NSObject, Reflectable {
                             return true
                         }
                         return false
-                        })!
-                } else if (namePropertyRule == .None) {
+                    })!
+                } else if (namePropertyRule == .none) {
                     if (map.keys.contains(property.name)) {
                         propertyName = map[property.name]!
                     }
@@ -322,39 +316,39 @@ class JSONModel: NSObject, Reflectable {
         }
     }
 
-    func properties()->[SerializeProperty]{
+    func properties() -> [SerializeProperty] {
         return Mirror(reflecting: self).toArray()
     }
-    
-    func NumberToInt64(_ value: NSNumber) -> Int64 {
+
+    func NumberToInt64(_ value: NSNumber) -> Int64 { // swiftlint:disable:this identifier_name
         return value.int64Value
     }
 
-    func NumberToInt(_ value: NSNumber) -> Int {
+    func NumberToInt(_ value: NSNumber) -> Int { // swiftlint:disable:this identifier_name
         return value.intValue
     }
 
-    func StringToInt64(_ value: String) -> Int64 {
+    func StringToInt64(_ value: String) -> Int64 { // swiftlint:disable:this identifier_name
         return Int64(value)!
     }
-    
-    func StringToInt(_ value: String) -> Int {
+
+    func StringToInt(_ value: String) -> Int { // swiftlint:disable:this identifier_name
         return Int(value)!
     }
 
-    func StringToString(_ value: String) -> String {
+    func StringToString(_ value: String) -> String { // swiftlint:disable:this identifier_name
         return value
     }
 }
 
 protocol Reflectable {
-    func properties()->[SerializeProperty]
+    func properties() -> [SerializeProperty]
 }
 
 class SerializeProperty {
     var name: String = ""
     var type: Any.Type = String.Type.self
-    
+
     init(name: String, type: Any.Type) {
         self.name = name
         self.type = type
@@ -364,21 +358,21 @@ class SerializeProperty {
 extension Mirror {
     func toArray() -> [SerializeProperty] {
         var result = [SerializeProperty]()
-        
+
         // Properties of this instance:
         for property in self.children {
             if let propertyName = property.label {
                 result.append(SerializeProperty(name: propertyName, type: type(of: property.value)))
             }
         }
-        
+
         // Add properties of superclass:
         if let parent = self.superclassMirror {
             for propertyName in parent.toArray() {
                 result.append(propertyName)
             }
         }
-        
+
         return result
     }
 }
@@ -397,25 +391,25 @@ class TestJsonModel: JSONModel {
     var id: Int = 0
     var optionalId: Int64?
     var optionalDefaultId: Int64!
-    var enumVar: NamePropertyMapRules = NamePropertyMapRules.None
+    var enumVar: NamePropertyMapRules = NamePropertyMapRules.none
     var optionalEnum: NamePropertyMapRules?
     var optionalDefaultEnum: NamePropertyMapRules!
-    
+
+// swiftlint:disable:next force_cast
     override func willPropertyChanged(_ value: Any, _ property: SerializeProperty) -> Bool {
         if (property.name == "optionalId") {
             optionalId = value as? Int64
         } else if (property.name == "optionalDefaultId") {
             optionalDefaultId = value as? Int64
         } else if (property.name == "enumVar") {
-            enumVar = value as! NamePropertyMapRules
+            enumVar = value as! NamePropertyMapRules // swiftlint:disable:this force_cast
         } else if (property.name == "optionalEnum") {
-            enumVar = value as! NamePropertyMapRules
+            enumVar = value as! NamePropertyMapRules // swiftlint:disable:this force_cast
         } else if (property.name == "optionalDefaultEnum") {
-            enumVar = value as! NamePropertyMapRules
+            enumVar = value as! NamePropertyMapRules // swiftlint:disable:this force_cast
         } else {
             return false
         }
         return true
     }
 }
-

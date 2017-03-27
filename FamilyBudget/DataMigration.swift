@@ -11,7 +11,7 @@ import UIKit
 class DataMigration: NSObject {
     let version: Int
     let rules: [Int:[String]]
-    
+
     init(version: Int, rules: [Int: [String]]) {
         self.version = version
         self.rules = rules

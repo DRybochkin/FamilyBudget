@@ -11,11 +11,11 @@ import SQLite
 
 enum TableTypes: String {
     case
-    AppOptions = "AppOptions",
-    Categories = "Categories",
-    Users = "Users",
-    Transactions = "Transacions"
-    static let allValues = [AppOptions, Users, Categories, Transactions]
+    appOptions = "AppOptions",
+    categories = "Categories",
+    users = "Users",
+    transactions = "Transacions"
+    static let allValues = [appOptions, users, categories, transactions]
 }
 
 class DOMasterDataHelper {
@@ -23,30 +23,32 @@ class DOMasterDataHelper {
     static private let entityName = Expression<String>("name")
     static private let entityType = Expression<String>("type")
     static private var table = Table(tableName)
-    
+
     static private let tables: [TableTypes: DataMigration] = [
-        TableTypes.AppOptions: DataMigration(version: 1, rules: [:]),
-        TableTypes.Users: DataMigration(version: 1, rules: [:]),
-        TableTypes.Categories: DataMigration(version: 1, rules: [:]),
-        TableTypes.Transactions: DataMigration(version: 1, rules: [:])
+        TableTypes.appOptions: DataMigration(version: 1, rules: [:]),
+        TableTypes.users: DataMigration(version: 1, rules: [:]),
+        TableTypes.categories: DataMigration(version: 1, rules: [:]),
+        TableTypes.transactions: DataMigration(version: 1, rules: [:])
 
         //TableTypes.AppOptions: DataMigration(version: 1, rules: [0: ["INSERT INTO '%@' (userId, lastTick, notificationToken) SELECT userId, lastTick, '' as notificationToken FROM '%@'"]]),
         //TableTypes.Users: DataMigration(version: 1, rules: [0: ["INSERT INTO '%@' (userId, userTitle, userPassword, userGroupKeyword) SELECT userId, userTitle, userPassword, userGroupKeyword FROM '%@'"]]),
-        //TableTypes.Categories: DataMigration(version: 1, rules: [0: ["INSERT INTO '%@' (categoryId, userId, categoryTitle, categoryType, categoryDeleted, categoryUploaded) SELECT categoryId, userId, categoryTitle, categoryType, categoryDeleted, categoryUploaded FROM '%@'"]]),
-        //TableTypes.Transactions: DataMigration(version: 1, rules: [0: ["INSERT INTO '%@' (transactionId, categoryId, userId, transactionDueDate, transactionMonth, transactionYear, transactionCost, transactionProfit, transactionDescription, transactionDeleted, transactionUploaded) SELECT transactionId, categoryId, userId, transactionDueDate, transactionMonth, transactionYear, 10.1, 1.9, transactionDescription, transactionDeleted, transactionUploaded FROM '%@'"]])
+        //TableTypes.Categories: DataMigration(version: 1, rules: [0: ["INSERT INTO '%@' (categoryId, userId, categoryTitle, categoryType, categoryDeleted, categoryUploaded) SELECT categoryId, userId, categoryTitle, 
+        // categoryType, categoryDeleted, categoryUploaded FROM '%@'"]]),
+        //TableTypes.Transactions: DataMigration(version: 1, rules: [0: ["INSERT INTO '%@' (transactionId, categoryId, userId, transactionDueDate, transactionMonth, transactionYear,
+        // transactionCost, transactionProfit, transactionDescription, transactionDeleted, transactionUploaded) SELECT transactionId, categoryId, userId, transactionDueDate, transactionMonth, transactionYear, 10.1, 1.9, transactionDescription, transactionDeleted, transactionUploaded FROM '%@'"]])
     ]
-    
+
     static func getTableName(_ tableType: TableTypes) -> String {
         return tableType.rawValue
     }
-    
+
     static func getTableVersion(_ tableType: TableTypes) -> Int {
         if (tables.keys.contains(tableType)) {
             return tables[tableType]!.version
         }
         return 1
     }
-    
+
     static func fullTableName(_ tableType: TableTypes, version: Int = -1) -> String {
         if (version > 0) {
             return String(format: "%@.v%d", getTableName(tableType), version)
@@ -55,11 +57,11 @@ class DOMasterDataHelper {
     }
 
     static private func createTable(_ tableType: TableTypes) -> Bool {
-        if (tableType == TableTypes.AppOptions) {
+        if (tableType == TableTypes.appOptions) {
             return DOOptionsDataHelper.createTable()
-        } else if (tableType == TableTypes.Categories) {
+        } else if (tableType == TableTypes.categories) {
             return DOCategoryDataHelper.createTable()
-        } else if (tableType == TableTypes.Users) {
+        } else if (tableType == TableTypes.users) {
             return DOUserDataHelper.createTable()
         } else {
             return DOTransactionDataHelper.createTable()
@@ -67,17 +69,17 @@ class DOMasterDataHelper {
     }
 
     static private func dropTable(_ tableType: TableTypes) -> Bool {
-        if (tableType == TableTypes.Transactions) {
+        if (tableType == TableTypes.transactions) {
             return DOTransactionDataHelper.dropTable()
-        } else if (tableType == TableTypes.Categories) {
+        } else if (tableType == TableTypes.categories) {
             return DOCategoryDataHelper.dropTable()
-        } else if (tableType == TableTypes.Users) {
+        } else if (tableType == TableTypes.users) {
             return DOUserDataHelper.dropTable()
         } else {
             return DOOptionsDataHelper.dropTable()
         }
     }
-    
+
     static func check(_ tableType: TableTypes) -> Bool {
         do {
             let items = try SQLiteDataStore.sharedInstance.db.prepare(table.filter(entityType == "table").filter(entityName == fullTableName(tableType)).limit(1))
@@ -105,17 +107,17 @@ class DOMasterDataHelper {
         }
         return results
     }
-    
+
     static func resolveTable(_ tableType: TableTypes) -> Bool {
         let tableVersion = getTableVersion(tableType)
         let currentTableVersion = getVersion(tableType)
-        
+
         if (createTable(tableType)) {
             return migration(tableType, fromVersion: currentTableVersion, toVersion: tableVersion)
         }
         return false
     }
-    
+
     static func migration(_ tableType: TableTypes, fromVersion: Int, toVersion: Int) -> Bool {
         if (toVersion <= fromVersion) {
             return true
@@ -138,5 +140,5 @@ class DOMasterDataHelper {
         }
         return false
     }
-   
+
 }

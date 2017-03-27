@@ -13,9 +13,9 @@ class TransactionTableViewCell: UITableViewCell {
     @IBOutlet weak var transactionAmount: UILabel!
     @IBOutlet weak var transactionUser: UILabel!
     @IBOutlet weak var transactionCategory: UILabel!
-    
-    var statistic: DOStatisticData? = nil
-    
+
+    var statistic: DOStatisticData?
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

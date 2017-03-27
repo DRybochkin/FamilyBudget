@@ -6,8 +6,8 @@
 //  Copyright © 2017 Dmitry Rybochkin. All rights reserved.
 //
 
-import Foundation
 import Charts
+import Foundation
 
 class DateValueFormater: NSObject, IAxisValueFormatter {
     func stringForValue(_ value: Double, axis: AxisBase?) -> String {
@@ -20,4 +20,3 @@ class AmountValueFormater: NSObject, IValueFormatter {
         return NSNumber(value: value).toStringWith(locale: "ru_RU")
     }
 }
-

@@ -16,21 +16,21 @@ class DOCategoryDataHelper: DataHelperProtocol {
     static let categoryType = Expression<String>("categoryType")
     static let categoryDeleted = Expression<Int>("categoryDeleted")
     static let categoryUploaded = Expression<Int>("categoryUploaded")
-    
-    static let table = Table(DOMasterDataHelper.fullTableName(TableTypes.Categories))
-    static let tableName = DOMasterDataHelper.getTableName(TableTypes.Categories)
-    
+
+    static let table = Table(DOMasterDataHelper.fullTableName(TableTypes.categories))
+    static let tableName = DOMasterDataHelper.getTableName(TableTypes.categories)
+
     typealias T = DOCategory
-    
+
     static func createTable() -> Bool {
         do {
-            try SQLiteDataStore.sharedInstance.db.run(table.create(ifNotExists: true) { t in
-                t.column(categoryId, primaryKey: .autoincrement)
-                t.column(userId)
-                t.column(categoryTitle)
-                t.column(categoryType)
-                t.column(categoryDeleted)
-                t.column(categoryUploaded)
+            try SQLiteDataStore.sharedInstance.db.run(table.create(ifNotExists: true) { el in
+                el.column(categoryId, primaryKey: .autoincrement)
+                el.column(userId)
+                el.column(categoryTitle)
+                el.column(categoryType)
+                el.column(categoryDeleted)
+                el.column(categoryUploaded)
             })
             return true
         } catch {
@@ -38,7 +38,7 @@ class DOCategoryDataHelper: DataHelperProtocol {
         }
         return false
     }
-    
+
     static func dropTable() -> Bool {
         do {
             try SQLiteDataStore.sharedInstance.db.run(table.drop(ifExists: true))
@@ -67,7 +67,7 @@ class DOCategoryDataHelper: DataHelperProtocol {
         }
         return -1
     }
-    
+
     static func update(item: T, needPost: Bool = true) -> Int64 {
         do {
             let update = table.filter(categoryId == item.categoryId).update(userId <- item.userId, categoryTitle <- item.categoryTitle, categoryType <- item.categoryType.rawValue, categoryDeleted <- item.categoryDeleted, categoryUploaded <- item.categoryUploaded)
@@ -95,9 +95,9 @@ class DOCategoryDataHelper: DataHelperProtocol {
         }
         return false
     }
-    
+
     static func resolve(item: T, needPost: Bool = true) -> T? {
-        
+
         if (find(id: item.categoryId) != nil) {
             let categoryId = update(item: item, needPost: needPost)
             if (categoryId != -1) {
@@ -145,7 +145,7 @@ class DOCategoryDataHelper: DataHelperProtocol {
         }
         return false
     }
-    
+
     static func find(id: Int64) -> T? {
         var results: T? = nil
         do {
@@ -159,12 +159,12 @@ class DOCategoryDataHelper: DataHelperProtocol {
         }
         return results
     }
-    
-    static func getAll(type: CategoryTypes = CategoryTypes.All) -> [T] {
+
+    static func getAll(type: CategoryTypes = CategoryTypes.all) -> [T] {
         var results: [T] = []
         do {
             var query = table
-            if (type != CategoryTypes.All) {
+            if (type != CategoryTypes.all) {
                 query = query.filter(categoryType == type.rawValue && categoryDeleted == 0)
             }
             let items = try SQLiteDataStore.sharedInstance.db.prepare(query)
@@ -190,7 +190,7 @@ class DOCategoryDataHelper: DataHelperProtocol {
         }
         return results
     }
-    
+
     internal static func getAll() -> [DOCategory]? {
         var retArray = [T]()
         do {
@@ -208,12 +208,12 @@ class DOCategoryDataHelper: DataHelperProtocol {
         for item in items {
             _ = update(item: item, needPost: false)
         }
-        
+
         if (needPost) {
             NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDidChangeData, object: ["Category", "updateAll", items])
         }
     }
-    
+
     static func updateUserId(_ oldUserId: Int64, newUserId: Int64, needPost: Bool = true) -> Bool {
         let update = table.filter(userId == oldUserId).update(userId <- newUserId, categoryUploaded <- 2)
         do {
@@ -227,22 +227,22 @@ class DOCategoryDataHelper: DataHelperProtocol {
         }
         return false
     }
-    
+
     static func insertAll(items: [T], needPost: Bool = true) {
         for item in items {
             _ = insert(item: item, needPost: false)
         }
-        
+
         if (needPost) {
             NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDidChangeData, object: ["Category", "insertAll", items])
         }
     }
-    
+
     static func resolveAll(items: [T], needPost: Bool = true) {
         for item in items {
             _ = resolve(item: item, needPost: false)
         }
-        
+
         if (needPost) {
             NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDidChangeData, object: ["Category", "resolveAll", items])
         }
@@ -252,7 +252,7 @@ class DOCategoryDataHelper: DataHelperProtocol {
         for item in items {
             _ = delete(item: item, needPost: false)
         }
-        
+
         if (needPost) {
             NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDidChangeData, object: ["Category", "deleteAll", items])
         }
@@ -262,7 +262,7 @@ class DOCategoryDataHelper: DataHelperProtocol {
         for item in items {
             _ = markDelete(id: item.categoryId, needPost: false)
         }
-        
+
         if (needPost) {
             NotificationCenter.default.post(name: Notification.Name.FamilyBudgetDidChangeData, object: ["Category", "markDeleteAll", items])
         }

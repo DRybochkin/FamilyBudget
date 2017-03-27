@@ -32,20 +32,20 @@ class Section: NSObject {
     var sectionType: SectionsTypes
     private var title: String!
     var parsedTitle: String {
-        get {
-            return String(format: title, statistic.fullTitle)
-        }
+        return String(format: title, statistic.fullTitle)
     }
-    
+
     var count: Int {
-        get {
-            if chart == nil {
-                return data.count
-            }
-            return data.count + 1
+        if chart == nil {
+            return data.count
         }
+        return data.count + 1
     }
-    
+
+    var isEmpty: Bool {
+        return count == 0 // swiftlint:disable:this empty_count
+    }
+
     init(sectionType: SectionsTypes, title: String! = nil, dataType: StatisticDataTypes! = nil, statistic: DOStatisticData! = nil, categoryType: CategoryTypes! = nil) {
         self.sectionType = sectionType
         if (title != nil) {
@@ -67,19 +67,19 @@ class Section: NSObject {
             self.categoryType = categoryType
         }
     }
-    
+
     private func updateTitle() {
         let item = statistic.dataTypes.last
-        if (item == StatisticDataTypes.Category && statistic.categoryId != nil) {
+        if (item == StatisticDataTypes.category && statistic.categoryId != nil) {
             statistic.categoryTitle = DOCategoryDataHelper.find(id: statistic.categoryId!)?.categoryTitle
-        } else if (item == StatisticDataTypes.User && statistic.userId != nil) {
+        } else if (item == StatisticDataTypes.user && statistic.userId != nil) {
             statistic.userTitle = DOUserDataHelper.find(id: statistic.userId!)?.userTitle
         }
     }
 
     func loadData() {
         updateTitle()
-        
+
         switch (sectionType) {
         case .transactions:
             if (title == nil) {
@@ -110,7 +110,7 @@ class Section: NSObject {
                 title = "Итого"
             }
             data = DOTransactionDataHelper.getStatistic(dataTypes: dataTypes, date: statistic.date, user: statistic.userId, category: statistic.categoryId, type: categoryType)
-            if (data.count <= 0) {
+            if (data.isEmpty) {
                 data = [DOStatisticData(dataTypes: dataTypes, dataCost: 0.0, dataProfit: 0.0, date: statistic.date)]
             }
             break
@@ -119,11 +119,11 @@ class Section: NSObject {
                 title = "По пользователям"
             }
             data = DOTransactionDataHelper.getStatistic(dataTypes: dataTypes, date: statistic.date, category: statistic.categoryId, type: categoryType)
-            let zero: NSNumber = (data.count == 0) ? defaultZeroValue : 0.0
+            let zero: NSNumber = (data.isEmpty) ? defaultZeroValue : 0.0
             let users = DOUserDataHelper.getAll()
             for user in users! {
                 let datas = data.filter { el in el.userId == user.userId }
-                if (datas.count == 0) {
+                if (datas.isEmpty) {
                     data.append(DOStatisticData(dataTypes: dataTypes, dataCost: zero, dataProfit: zero, date: statistic.date, userId: user.userId, userTitle: user.userTitle, categoryId: statistic.categoryId, categoryTitle: statistic.categoryTitle, categoryType: statistic.categoryType?.rawValue))
                 }
             }
@@ -134,11 +134,11 @@ class Section: NSObject {
                 title = "По категориям"
             }
             data = DOTransactionDataHelper.getStatistic(dataTypes: dataTypes, date: statistic.date, user: statistic.userId, type: categoryType)
-            let zero: NSNumber = (data.count == 0) ? defaultZeroValue : 0.0
+            let zero: NSNumber = (data.isEmpty) ? defaultZeroValue : 0.0
             let categories = DOCategoryDataHelper.getAll(type: categoryType)
             for category in categories {
                 let datas = data.filter { el in el.categoryId == category.categoryId }
-                if (datas.count == 0) {
+                if (datas.isEmpty) {
                     data.append(DOStatisticData(dataTypes: dataTypes, dataCost: zero, dataProfit: zero, date: statistic.date, userId: statistic.userId, userTitle: statistic.userTitle, categoryId: category.categoryId, categoryTitle: category.categoryTitle, categoryType: categoryType.rawValue))
                 }
             }
@@ -148,13 +148,13 @@ class Section: NSObject {
             if (title == nil) {
                 title = "По месяцам"
             }
-            if (statistic.categoryType == CategoryTypes.Cost || statistic.categoryType == CategoryTypes.Profit) {
+            if (statistic.categoryType == CategoryTypes.cost || statistic.categoryType == CategoryTypes.profit) {
                 data = DOTransactionDataHelper.getStatistic(dataTypes: dataTypes, user: statistic.userId, category: statistic.categoryId, type: categoryType)
                 chart = DOChart(data: data, type: statistic.categoryType!)
             } else {
                 data = DOTransactionDataHelper.getStatistic(dataTypes: dataTypes!, user: statistic.userId, category: statistic.categoryId)
-                let zero: NSNumber = (data.count == 0) ? defaultZeroValue : 0.0
-                if (data.count <= 0) {
+                let zero: NSNumber = (data.isEmpty) ? defaultZeroValue : 0.0
+                if (data.isEmpty) {
                     data = [DOStatisticData(dataTypes: dataTypes, dataCost: zero, dataProfit: zero, date: Date())]
                 }
                 chart = DOChart(data: data)
@@ -168,7 +168,7 @@ class Section: NSObject {
             let users = DOUserDataHelper.getAll()
             for user in users! {
                 let datas = data.filter { el in el.userId == user.userId }
-                if (datas.count == 0) {
+                if (datas.isEmpty) {
                     data.append(DOStatisticData(dataTypes: dataTypes, dataCost: 0.0001, dataProfit: 0.0001, date: statistic.date, userId: user.userId, userTitle: user.userTitle, categoryId: statistic.categoryId, categoryTitle: statistic.categoryTitle, categoryType: statistic.categoryType?.rawValue))
                 }
             }

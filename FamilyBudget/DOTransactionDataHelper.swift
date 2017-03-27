@@ -22,25 +22,25 @@ class DOTransactionDataHelper: DataHelperProtocol {
     static let transactionDeleted = Expression<Int>("transactionDeleted")
     static let transactionUploaded = Expression<Int>("transactionUploaded")
 
-    static let table = Table(DOMasterDataHelper.fullTableName(TableTypes.Transactions))
-    static let tableName = DOMasterDataHelper.getTableName(TableTypes.Transactions)
+    static let table = Table(DOMasterDataHelper.fullTableName(TableTypes.transactions))
+    static let tableName = DOMasterDataHelper.getTableName(TableTypes.transactions)
 
     typealias T = DOTransaction
-    
+
     static func createTable() -> Bool {
         do {
-            try SQLiteDataStore.sharedInstance.db.run(table.create(ifNotExists: true) { t in
-                t.column(transactionId, primaryKey: .autoincrement)
-                t.column(categoryId)
-                t.column(userId)
-                t.column(transactionDueDate)
-                t.column(transactionMonth)
-                t.column(transactionYear)
-                t.column(transactionCost)
-                t.column(transactionProfit)
-                t.column(transactionDescription)
-                t.column(transactionDeleted)
-                t.column(transactionUploaded)
+            try SQLiteDataStore.sharedInstance.db.run(table.create(ifNotExists: true) { el in
+                el.column(transactionId, primaryKey: .autoincrement)
+                el.column(categoryId)
+                el.column(userId)
+                el.column(transactionDueDate)
+                el.column(transactionMonth)
+                el.column(transactionYear)
+                el.column(transactionCost)
+                el.column(transactionProfit)
+                el.column(transactionDescription)
+                el.column(transactionDeleted)
+                el.column(transactionUploaded)
             })
             return true
         } catch {
@@ -48,7 +48,7 @@ class DOTransactionDataHelper: DataHelperProtocol {
         }
         return false
     }
-    
+
     static func dropTable() -> Bool {
         do {
             try SQLiteDataStore.sharedInstance.db.run(table.drop(ifExists: true))
@@ -77,7 +77,7 @@ class DOTransactionDataHelper: DataHelperProtocol {
         }
         return -1
     }
-    
+
     static func update(item: T, needPost: Bool = true) -> Int64 {
         do {
             let update = table.filter(transactionId == item.transactionId).update(categoryId <- item.categoryId, userId <- item.userId, transactionDueDate <- item.transactionDueDate, transactionCost <- item.transactionCost.doubleValue, transactionProfit <- item.transactionProfit.doubleValue, transactionDescription <- item.transactionDescription, transactionDeleted <- item.transactionDeleted, transactionUploaded <- item.transactionUploaded, transactionMonth <- item.transactionMonth, transactionYear <- item.transactionYear)
@@ -204,7 +204,7 @@ class DOTransactionDataHelper: DataHelperProtocol {
         }
         return results
     }
-    
+
     static func getAll() -> [T]? {
         var retArray = [T]()
         do {
@@ -217,7 +217,7 @@ class DOTransactionDataHelper: DataHelperProtocol {
         }
         return retArray
     }
-    
+
     static func getAllForUpload() -> [T] {
         var results: [T] = []
         do {
@@ -276,14 +276,14 @@ class DOTransactionDataHelper: DataHelperProtocol {
     static func getStatistic(dataTypes: [StatisticDataTypes], date: Date? = nil, user: Int64? = nil, category: Int64? = nil, type: CategoryTypes? = nil) -> [DOStatisticData] {
         var results: [DOStatisticData] = [DOStatisticData]()
 
-        let categories:Table = DOCategoryDataHelper.table
-        let users:Table = DOUserDataHelper.table
-        
+        let categories: Table = DOCategoryDataHelper.table
+        let users: Table = DOUserDataHelper.table
+
         let catId = DOCategoryDataHelper.categoryId
         let categoryType = DOCategoryDataHelper.categoryType
         let categoryTitle = DOCategoryDataHelper.categoryTitle
         let categoryDeleted = DOCategoryDataHelper.categoryDeleted
-        var catType:String = ""
+        var catType: String = ""
 
         if (type != nil) {
             catType = type!.rawValue
@@ -296,9 +296,9 @@ class DOTransactionDataHelper: DataHelperProtocol {
         let profitSum = table[transactionProfit].sum
 
         var query = table.select(table[userId], users[userTitle], table[categoryId], categories[categoryTitle], categories[categoryType], table[transactionMonth], table[transactionYear], costSum, profitSum).join(categories, on: table[categoryId] == categories[catId]).join(users, on: table[userId] == users[usrId]).filter(transactionDeleted == 0 && categoryDeleted == 0 && DOUserDataHelper.userGroupKeyword == SQLiteDataStore.sharedInstance.currentUser.userGroupKeyword)
-        
+
         if (date != nil) {
-            query = query.filter(transactionDueDate>=Int64((date?.startOfMonth().timeIntervalSince1970)!) && transactionDueDate<Int64((date?.startOfNextMonth().timeIntervalSince1970)!))
+            query = query.filter(transactionDueDate >= Int64((date?.startOfMonth().timeIntervalSince1970)!) && transactionDueDate < Int64((date?.startOfNextMonth().timeIntervalSince1970)!))
         }
         if (user != nil) {
             query = query.filter(table[userId] == user!)
@@ -309,19 +309,19 @@ class DOTransactionDataHelper: DataHelperProtocol {
         if (type != nil) {
             query = query.filter(categories[categoryType] == catType)
         }
-        if (dataTypes == [StatisticDataTypes.Month]) {
+        if (dataTypes == [StatisticDataTypes.month]) {
             query = query.group(table[transactionMonth], table[transactionYear]).order(table[transactionYear].desc, table[transactionMonth].desc)
-        } else if (dataTypes == [StatisticDataTypes.Category]) {
+        } else if (dataTypes == [StatisticDataTypes.category]) {
             query = query.group(table[categoryId]).order(costSum.desc, profitSum.desc)
-        } else if (dataTypes == [StatisticDataTypes.User]) {
+        } else if (dataTypes == [StatisticDataTypes.user]) {
             query = query.group(table[userId]).order(costSum.desc, profitSum.desc)
-        } else if (dataTypes.contains(StatisticDataTypes.Category) && dataTypes.contains(StatisticDataTypes.Month) && dataTypes.contains(StatisticDataTypes.User)) {
+        } else if (dataTypes.contains(StatisticDataTypes.category) && dataTypes.contains(StatisticDataTypes.month) && dataTypes.contains(StatisticDataTypes.user)) {
             query = query.group(table[transactionMonth], table[transactionYear], table[userId], table[categoryId]).order(costSum.desc, profitSum.desc)
-        } else if (dataTypes.contains(StatisticDataTypes.Category) && dataTypes.contains(StatisticDataTypes.Month)) {
+        } else if (dataTypes.contains(StatisticDataTypes.category) && dataTypes.contains(StatisticDataTypes.month)) {
             query = query.group(table[transactionMonth], table[transactionYear], table[categoryId]).order(costSum.desc, profitSum.desc)
-        } else if (dataTypes.contains(StatisticDataTypes.Category) && dataTypes.contains(StatisticDataTypes.User)) {
+        } else if (dataTypes.contains(StatisticDataTypes.category) && dataTypes.contains(StatisticDataTypes.user)) {
             query = query.group(table[userId], table[categoryId]).order(costSum.desc, profitSum.desc)
-        } else if (dataTypes.contains(StatisticDataTypes.User) && dataTypes.contains(StatisticDataTypes.Month)) {
+        } else if (dataTypes.contains(StatisticDataTypes.user) && dataTypes.contains(StatisticDataTypes.month)) {
             query = query.group(table[transactionMonth], table[transactionYear], table[userId]).order(costSum.desc, profitSum.desc)
         } else {
             query = query.group(table[transactionMonth], table[transactionYear], table[userId], table[categoryId]).order(costSum.desc, profitSum.desc)
@@ -329,19 +329,19 @@ class DOTransactionDataHelper: DataHelperProtocol {
         do {
             let items = try SQLiteDataStore.sharedInstance.db.prepare(query)
             for item in items {
-                if (dataTypes == [StatisticDataTypes.Month]) {
+                if (dataTypes == [StatisticDataTypes.month]) {
                     results.append(DOStatisticData(dataTypes: dataTypes, dataCost: NSNumber(value: item[costSum]!), dataProfit: NSNumber(value: item[profitSum]!), date: Date.from(month: item[transactionMonth], year: item[transactionYear]), categoryType: type?.rawValue))
-                } else if (dataTypes == [StatisticDataTypes.Category]) {
+                } else if (dataTypes == [StatisticDataTypes.category]) {
                     results.append(DOStatisticData(dataTypes: dataTypes, dataCost: NSNumber(value: item[costSum]!), dataProfit: NSNumber(value: item[profitSum]!), categoryId: item[categoryId], categoryTitle: item[categoryTitle], categoryType: item[categoryType]))
-                } else if (dataTypes == [StatisticDataTypes.User]) {
+                } else if (dataTypes == [StatisticDataTypes.user]) {
                     results.append(DOStatisticData(dataTypes: dataTypes, dataCost: NSNumber(value: item[costSum]!), dataProfit: NSNumber(value: item[profitSum]!), userId: item[userId], userTitle: item[userTitle], categoryType: type?.rawValue))
-                } else if (dataTypes.contains(StatisticDataTypes.Category) && dataTypes.contains(StatisticDataTypes.Month) && dataTypes.contains(StatisticDataTypes.User)) {
+                } else if (dataTypes.contains(StatisticDataTypes.category) && dataTypes.contains(StatisticDataTypes.month) && dataTypes.contains(StatisticDataTypes.user)) {
                     results.append(DOStatisticData(dataTypes: dataTypes, dataCost: NSNumber(value: item[costSum]!), dataProfit: NSNumber(value: item[profitSum]!), date: Date.from(month: item[transactionMonth], year: item[transactionYear]), userId: item[userId], userTitle: item[userTitle], categoryId: item[categoryId], categoryTitle: item[categoryTitle], categoryType: item[categoryType]))
-                } else if (dataTypes.contains(StatisticDataTypes.Category) && dataTypes.contains(StatisticDataTypes.Month)) {
+                } else if (dataTypes.contains(StatisticDataTypes.category) && dataTypes.contains(StatisticDataTypes.month)) {
                     results.append(DOStatisticData(dataTypes: dataTypes, dataCost: NSNumber(value: item[costSum]!), dataProfit: NSNumber(value: item[profitSum]!), date: Date.from(month: item[transactionMonth], year: item[transactionYear]), categoryId: item[categoryId], categoryTitle: item[categoryTitle], categoryType: item[categoryType]))
-                } else if (dataTypes.contains(StatisticDataTypes.Category) && dataTypes.contains(StatisticDataTypes.User)) {
+                } else if (dataTypes.contains(StatisticDataTypes.category) && dataTypes.contains(StatisticDataTypes.user)) {
                     results.append(DOStatisticData(dataTypes: dataTypes, dataCost: NSNumber(value: item[costSum]!), dataProfit: NSNumber(value: item[profitSum]!), userId: item[userId], userTitle: item[userTitle], categoryId: item[categoryId], categoryTitle: item[categoryTitle], categoryType: item[categoryType]))
-                } else if (dataTypes.contains(StatisticDataTypes.User) && dataTypes.contains(StatisticDataTypes.Month)) {
+                } else if (dataTypes.contains(StatisticDataTypes.user) && dataTypes.contains(StatisticDataTypes.month)) {
                     results.append(DOStatisticData(dataTypes: dataTypes, dataCost: NSNumber(value: item[costSum]!), dataProfit: NSNumber(value: item[profitSum]!), date: Date.from(month: item[transactionMonth], year: item[transactionYear]), userId: item[userId], userTitle: item[userTitle], categoryType: type?.rawValue))
                 } else {
                     results.append(DOStatisticData(dataTypes: dataTypes, dataCost: NSNumber(value: item[costSum]!), dataProfit: NSNumber(value: item[profitSum]!), date: Date.from(month: item[transactionMonth], year: item[transactionYear]), userId: item[userId], userTitle: item[userTitle], categoryId: item[categoryId], categoryTitle: item[categoryTitle], categoryType: item[categoryType]))
@@ -352,33 +352,33 @@ class DOTransactionDataHelper: DataHelperProtocol {
         }
         return results
     }
-    
+
     /*Statistic transactions */
     static func getTransactions(date: Date? = nil, user: Int64? = nil, category: Int64? = nil, type: CategoryTypes? = nil) -> [DOStatisticData] {
         var results: [DOStatisticData] = [DOStatisticData]()
-        
-        let categories:Table = DOCategoryDataHelper.table
-        let users:Table = DOUserDataHelper.table
-        
+
+        let categories: Table = DOCategoryDataHelper.table
+        let users: Table = DOUserDataHelper.table
+
         let catId = DOCategoryDataHelper.categoryId
         let categoryType = DOCategoryDataHelper.categoryType
         let categoryTitle = DOCategoryDataHelper.categoryTitle
-        var catType:String = ""
-        
+        var catType: String = ""
+
         if (type != nil) {
             catType = type!.rawValue
         }
-        
+
         let usrId = DOUserDataHelper.userId
         let userTitle = DOUserDataHelper.userTitle
-        
+
         //let costSum = table[transactionCost].sum
         //let profitSum = table[transactionProfit].sum
-        
+
         var query = table.select(table[transactionId], table[transactionDueDate], table[transactionDescription], table[userId], users[userTitle], table[categoryId], categories[categoryTitle], categories[categoryType], table[transactionMonth], table[transactionYear], table[transactionCost], table[transactionProfit]).join(categories, on: table[categoryId] == categories[catId]).join(users, on: table[userId] == users[usrId]).filter(transactionDeleted == 0 && DOCategoryDataHelper.categoryDeleted == 0 && DOUserDataHelper.userGroupKeyword == SQLiteDataStore.sharedInstance.currentUser.userGroupKeyword)
-        
+
         if (date != nil) {
-            query = query.filter(transactionDueDate>=Int64((date?.startOfMonth().timeIntervalSince1970)!) && transactionDueDate<Int64((date?.startOfNextMonth().timeIntervalSince1970)!))
+            query = query.filter(transactionDueDate >= Int64((date?.startOfMonth().timeIntervalSince1970)!) && transactionDueDate < Int64((date?.startOfNextMonth().timeIntervalSince1970)!))
         }
         if (user != nil) {
             query = query.filter(table[userId] == user!)
@@ -393,13 +393,12 @@ class DOTransactionDataHelper: DataHelperProtocol {
         do {
             let items = try SQLiteDataStore.sharedInstance.db.prepare(query)
             for item in items {
-                results.append(DOStatisticData(dataTypes: [StatisticDataTypes.Transaction], dataCost: NSNumber(value: item[transactionCost]), dataProfit: NSNumber(value: item[transactionProfit]), date: Date.from(month: item[transactionMonth], year: item[transactionYear]), userId: item[userId], userTitle: item[userTitle], categoryId: item[categoryId], categoryTitle: item[categoryTitle], categoryType: item[categoryType], transactionId: item[transactionId], transactionDueDate: item[transactionDueDate], transactionDescription: item[transactionDescription]))
+                results.append(DOStatisticData(dataTypes: [StatisticDataTypes.transaction], dataCost: NSNumber(value: item[transactionCost]), dataProfit: NSNumber(value: item[transactionProfit]), date: Date.from(month: item[transactionMonth], year: item[transactionYear]), userId: item[userId], userTitle: item[userTitle], categoryId: item[categoryId], categoryTitle: item[categoryTitle], categoryType: item[categoryType], transactionId: item[transactionId], transactionDueDate: item[transactionDueDate], transactionDescription: item[transactionDescription]))
             }
         } catch {
             print("getTransactions \(tableName) error: ", error, date as Any, user as Any, category as Any, type as Any)
         }
-        
+
         return results
     }
 }
- 

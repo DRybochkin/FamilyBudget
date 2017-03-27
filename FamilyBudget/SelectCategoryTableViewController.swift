@@ -12,7 +12,7 @@ class SelectCategoryTableViewController: BaseTableViewController, UIPopoverPrese
     var categoryId: Int64!
     var categoryType: CategoryTypes!
     weak var selectCategoryDelegate: SelectCategoryDelegate!
-    
+
     private var categories: [DOCategory] = []
     private var selectedIndexPath: IndexPath!
 
@@ -27,11 +27,12 @@ class SelectCategoryTableViewController: BaseTableViewController, UIPopoverPrese
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         tableView.reloadData()
     }
-    
+
     override func loadData() {
         if (categoryId != nil && categoryId > 0) {
             let cat = DOCategoryDataHelper.find(id: categoryId)
@@ -41,13 +42,13 @@ class SelectCategoryTableViewController: BaseTableViewController, UIPopoverPrese
             categories = DOCategoryDataHelper.getAll(type: (categoryType)!)
         }
     }
-    
+
     // MARK: - Table view data source
-    
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return categories.count
     }
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: "RI_SelectCategoryTableViewCell", for: indexPath) as? SelectCategoryTableViewCell {
             cell.categoryTitle?.text = categories[indexPath.item].categoryTitle
@@ -82,26 +83,26 @@ class SelectCategoryTableViewController: BaseTableViewController, UIPopoverPrese
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return UIModalPresentationStyle.currentContext
     }
-    
+
     @IBAction func cancel(_ sender: UIBarButtonItem) {
-        dismiss(animated: true, completion: nil);
+        dismiss(animated: true, completion: nil)
     }
-    
+
     @IBAction func done(_ sender: UIBarButtonItem) {
         selectCategoryDelegate?.categoryId = categoryId
         dismiss(animated: true, completion: nil)
     }
-    
+
     // MARK: - Navigation
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
-        
+
         if (segue.identifier == "AddCategory") {
             guard let nc = segue.destination as? UINavigationController else {
                 fatalError("Unexpected destination: \(segue.destination)")
             }
-            
+
             guard let vc = nc.viewControllers[0] as? CategoryEditTableViewController else {
                 fatalError("Unexpected destination: \(segue.destination)")
             }
@@ -114,21 +115,20 @@ class SelectCategoryTableViewController: BaseTableViewController, UIPopoverPrese
             guard let nc = segue.destination as? UINavigationController else {
                 fatalError("Unexpected destination navigation: \(segue.destination)")
             }
-            
+
             guard let vc = nc.viewControllers[0] as? CategoryEditTableViewController else {
                 fatalError("Unexpected destination: \(segue.destination)")
             }
-            
+
             guard let editButton = sender as? UIButton else {
                 fatalError("Unexpected sender: \(segue.destination)")
             }
 
             vc.title = "Редактирование категории"
             vc.category = categories[editButton.tag]
-            
+
             return
         }
     }
-    
 
 }

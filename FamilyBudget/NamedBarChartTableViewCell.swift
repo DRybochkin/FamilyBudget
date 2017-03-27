@@ -6,12 +6,12 @@
 //  Copyright © 2017 Dmitry Rybochkin. All rights reserved.
 //
 
-import UIKit
 import Charts
+import UIKit
 
 class NamedBarChartTableViewCell: UITableViewCell {
     @IBOutlet weak var chartView: BarChartView!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

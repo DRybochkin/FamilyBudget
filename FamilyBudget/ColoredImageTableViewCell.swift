@@ -12,7 +12,7 @@ class ColoredImageTableViewCell: UITableViewCell {
     @IBOutlet weak var cellAmount: UILabel!
     @IBOutlet weak var cellTitle: UILabel!
     @IBOutlet weak var cellImage: UIImageView!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

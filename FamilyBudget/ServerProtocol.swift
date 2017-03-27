@@ -25,11 +25,11 @@ typealias FeedbackResponseCallback = (_ resolvedFeedback: DOFeedback?) -> Void
 
 protocol ServerProtocol {
     func connectToServer(user: DOUser, callback: UserResponseCallback?)
-    
+
     func getTick(callback: TickResponseCallback?) /*userid*/
-    
+
     func getUsers(callback: UsersResponseCallback?)
-    
+
     func addCategory(category: DOCategory, callback: CategoryResponseCallback?)
     func changeCategory(category: DOCategory, callback: CategoryResponseCallback?)
     func getCategories(callback: CategoriesResponseCallback?)

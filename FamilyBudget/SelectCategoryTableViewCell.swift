@@ -12,7 +12,7 @@ class SelectCategoryTableViewCell: UITableViewCell {
     @IBOutlet weak var categoryTitle: UILabel!
     @IBOutlet weak var checkButton: UIButton!
     @IBOutlet weak var editButton: UIButton!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

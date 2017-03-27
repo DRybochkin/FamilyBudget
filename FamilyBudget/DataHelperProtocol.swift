@@ -29,4 +29,3 @@ protocol DataHelperProtocol {
     //static func fromJson(json: String) -> T?
     //static func allFromJson(json: String) -> [T]?
 }
-

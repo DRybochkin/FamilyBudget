@@ -6,19 +6,19 @@
 //  Copyright © 2017 Dmitry Rybochkin. All rights reserved.
 //
 
-import UIKit
 import os.log
+import UIKit
 
 class StatisticPageViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
     var statistic: DOStatisticData!
     var pageControl: UIPageControl!
     private var pages: [UIViewController] = []
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         loadData()
-        
+
         dataSource = self
         delegate = self
 
@@ -26,14 +26,16 @@ class StatisticPageViewController: UIPageViewController, UIPageViewControllerDat
         if (navigationController != nil) {
             //navigationItem.title = "Семейный бюджет"
             let navController: UINavigationController = navigationController!
-            
-            let views = navController.navigationBar.subviews.filter { el in el is UIPageControl}
-            
-            if (views.count > 0) {
-                pageControl = views[0] as! UIPageControl
+
+            let views = navController.navigationBar.subviews.filter { el in
+                return el is UIPageControl
+            }
+
+            if (!views.isEmpty) {
+                pageControl = views[0] as! UIPageControl // swiftlint:disable:this force_cast
             } else {
                 let navBarSize: CGSize = navController.navigationBar.bounds.size
-                let origin: CGPoint = CGPoint(x: navBarSize.width/2, y: navBarSize.height/2 )
+                let origin: CGPoint = CGPoint(x: navBarSize.width / 2, y: navBarSize.height / 2 )
                 pageControl = UIPageControl(frame: CGRect(x: origin.x, y: origin.y, width: 0, height: 0))
                 pageControl.pageIndicatorTintColor = UIColor.white
                 pageControl.currentPageIndicatorTintColor = UIColor.red
@@ -43,7 +45,7 @@ class StatisticPageViewController: UIPageViewController, UIPageViewControllerDat
         }
         setViewControllers([pages[0]], direction: .forward, animated: true, completion: nil)
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
@@ -57,16 +59,16 @@ class StatisticPageViewController: UIPageViewController, UIPageViewControllerDat
             pageControl.currentPage = viewControllerIndex
         }
     }
-    
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
+
     func loadData() {
         pages = StatisticHelpers.createControllers(statistic, pageController: self)
     }
-    
+
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let viewControllerIndex = pages.index(of: viewController) else {
             print("Before viewControllerIndex = nil")
@@ -76,43 +78,43 @@ class StatisticPageViewController: UIPageViewController, UIPageViewControllerDat
         let previousIndex = viewControllerIndex - 1
 
         guard previousIndex >= 0 else {
-            return pages[pages.count-1]
+            return pages[pages.count - 1]
         }
-        
+
         guard pages.count > previousIndex else {
             return nil
         }
-        
+
         return pages[previousIndex]
     }
-    
+
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let viewControllerIndex = pages.index(of: viewController) else {
             print("After viewControllerIndex = nil")
             return nil
         }
         print("After viewControllerIndex = %d", viewControllerIndex)
-        
+
         let nextIndex = viewControllerIndex + 1
 
         let orderedViewControllersCount = pages.count
-        
+
         guard orderedViewControllersCount != nextIndex else {
             return pages[0]
         }
-        
+
         guard orderedViewControllersCount > nextIndex else {
             return nil
         }
-        
+
         return pages[nextIndex]
     }
-    
+
     func presentationCount(for pageViewController: UIPageViewController) -> Int {
         print("presentationCount")
         return pages.count
     }
-    
+
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         guard completed else { return }
         guard let viewControllerIndex = pages.index(of: (pageViewController.viewControllers?.first)!) else {

@@ -14,19 +14,19 @@ class DOUserDataHelper: DataHelperProtocol {
     static let userTitle = Expression<String>("userTitle")
     static let userPassword = Expression<String>("userPassword")
     static let userGroupKeyword = Expression<String>("userGroupKeyword")
-    
-    static let table = Table(DOMasterDataHelper.fullTableName(TableTypes.Users))
-    static let tableName = DOMasterDataHelper.getTableName(TableTypes.Users)
+
+    static let table = Table(DOMasterDataHelper.fullTableName(TableTypes.users))
+    static let tableName = DOMasterDataHelper.getTableName(TableTypes.users)
 
     typealias T = DOUser
-    
+
     static func createTable() -> Bool {
         do {
-            try SQLiteDataStore.sharedInstance.db.run(table.create(ifNotExists: true) { t in
-                t.column(userId, primaryKey: true)
-                t.column(userTitle)
-                t.column(userPassword)
-                t.column(userGroupKeyword)
+            try SQLiteDataStore.sharedInstance.db.run(table.create(ifNotExists: true) { el in
+                el.column(userId, primaryKey: true)
+                el.column(userTitle)
+                el.column(userPassword)
+                el.column(userGroupKeyword)
             })
             return true
         } catch {
@@ -34,7 +34,7 @@ class DOUserDataHelper: DataHelperProtocol {
         }
         return false
     }
-    
+
     static func dropTable() -> Bool {
         do {
             try SQLiteDataStore.sharedInstance.db.run(table.drop(ifExists: true))
@@ -63,7 +63,7 @@ class DOUserDataHelper: DataHelperProtocol {
         }
         return -1
     }
-    
+
     static func update(item: T, needPost: Bool = true) -> Int64 {
         do {
             let update = table.filter(userId == item.userId).update(userId <- item.userId, userTitle <- item.userTitle, userPassword <- item.userPassword, userGroupKeyword <- item.userGroupKeyword)
@@ -91,10 +91,9 @@ class DOUserDataHelper: DataHelperProtocol {
         }
         return false
     }
-    
-    
+
     static func resolve(item: T, needPost: Bool = true) -> T? {
-        
+
         if (find(id: item.userId) != nil) {
             let userId = update(item: item, needPost: needPost)
             if (userId != -1) {
@@ -122,7 +121,7 @@ class DOUserDataHelper: DataHelperProtocol {
         }
         return false
     }
-    
+
     static func find(id: Int64) -> T? {
         var results: T? = nil
         do {
@@ -136,7 +135,7 @@ class DOUserDataHelper: DataHelperProtocol {
         }
         return results
     }
-    
+
     static func getAll() -> [T]? {
         var retArray = [T]()
         do {

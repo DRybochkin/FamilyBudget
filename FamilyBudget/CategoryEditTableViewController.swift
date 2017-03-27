@@ -15,16 +15,16 @@ class CategoryEditTableViewController: UITableViewController {
 
     var category: DOCategory!
     var categoryId: Int64!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         if (category == nil) {
             category = DOCategoryDataHelper.find(id: categoryId)
         }
-        
+
         categoryTitle.text = category.categoryTitle
-        
+
         checkState()
     }
 
@@ -36,17 +36,17 @@ class CategoryEditTableViewController: UITableViewController {
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return UIModalPresentationStyle.currentContext
     }
-    
+
     func checkState() {
         let title = categoryTitle.text!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        saveBarButton.isEnabled = title.characters.count > 0 && (category == nil || title != category.categoryTitle)
-        errorCategoryTitleLabel.isHidden = title.characters.count > 0
+        saveBarButton.isEnabled = title.characters.isEmpty && (category == nil || title != category.categoryTitle)
+        errorCategoryTitleLabel.isHidden = title.characters.isEmpty
     }
-    
+
     @IBAction func editingChanged(_ sender: Any) {
         checkState()
     }
-    
+
     @IBAction func cancel(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
     }
@@ -63,7 +63,7 @@ class CategoryEditTableViewController: UITableViewController {
             /*Show error message*/
         }
     }
-    
+
     // MARK: - Navigation
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     //override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

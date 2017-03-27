@@ -14,27 +14,27 @@ class DOOptionsDataHelper: DataHelperProtocol {
     static let userId = Expression<Int64>("userId")
     static let lastTick = Expression<Int64>("lastTick")
     static let notificationToken = Expression<String>("notificationToken")
-    
-    static let table = Table(DOMasterDataHelper.fullTableName(TableTypes.AppOptions))
-    static let tableName = DOMasterDataHelper.getTableName(TableTypes.AppOptions)
-    
+
+    static let table = Table(DOMasterDataHelper.fullTableName(TableTypes.appOptions))
+    static let tableName = DOMasterDataHelper.getTableName(TableTypes.appOptions)
+
     typealias T = DOOptions
-    
+
     static func createTable() -> Bool {
         do {
-            try SQLiteDataStore.sharedInstance.db.run(table.create(ifNotExists: true) { t in
-                t.column(userId, primaryKey: true)
-                t.column(lastTick)
-                t.column(notificationToken)
+            try SQLiteDataStore.sharedInstance.db.run(table.create(ifNotExists: true) { el in
+                el.column(userId, primaryKey: true)
+                el.column(lastTick)
+                el.column(notificationToken)
             })
-            
+
             return true
         } catch {
             print("create \(tableName) error", error)
         }
         return false
     }
-    
+
     static func dropTable() -> Bool {
         do {
             try SQLiteDataStore.sharedInstance.db.run(table.drop(ifExists: true))
@@ -44,7 +44,7 @@ class DOOptionsDataHelper: DataHelperProtocol {
         }
         return false
     }
-    
+
     static func insert(item: T, needPost: Bool = false) -> Int64 {
         do {
             let insert = table.insert(userId <- item.userId, lastTick <- item.lastTick, notificationToken <- item.notificationToken)
@@ -88,7 +88,7 @@ class DOOptionsDataHelper: DataHelperProtocol {
     }
 
     static func resolve(item: T, needPost: Bool = false) -> T? {
-        
+
         if (find(id: item.userId) != nil) {
             let userId = update(item: item, needPost: needPost)
             if (userId != -1) {
@@ -102,7 +102,7 @@ class DOOptionsDataHelper: DataHelperProtocol {
         }
         return nil
     }
-    
+
     static func delete (item: T, needPost: Bool = false) -> Bool {
         do {
             let query = table.filter(userId == item.userId)
@@ -116,7 +116,7 @@ class DOOptionsDataHelper: DataHelperProtocol {
         }
         return false
     }
-    
+
     static func find(id: Int64) -> T? {
         var results: T? = nil
         do {
@@ -130,7 +130,7 @@ class DOOptionsDataHelper: DataHelperProtocol {
         }
         return results
     }
-    
+
     static func getAll() -> [T]? {
         var retArray = [T]()
         do {
@@ -143,7 +143,7 @@ class DOOptionsDataHelper: DataHelperProtocol {
         }
         return retArray
     }
-    
+
     static func clear(needPost: Bool) -> Bool {
         do {
             try SQLiteDataStore.sharedInstance.db.run(table.delete())

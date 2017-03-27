@@ -11,16 +11,16 @@ import UIKit
 class BaseTableViewController: UITableViewController {
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)!
-        
+
         NotificationCenter.default.addObserver(self, selector: #selector(reloadData), name: NSNotification.Name.FamilyBudgetNeedReloadData, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(showIndicator(_:)), name: NSNotification.Name.FamilyBudgetDataWillLoad, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(hideIndicator), name: NSNotification.Name.FamilyBudgetDataDidLoad, object: nil)
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
+
     func reloadData() {
         loadData()
         tableView.reloadData()
@@ -37,17 +37,24 @@ class BaseTableViewController: UITableViewController {
             tableView.tableHeaderView = indicator
             indicator.progress = 0.0
         } else {
-            let array = notification.object as! [Any]
-            if (array.count > 2 && array[2] is Float) {
-                (tableView.tableHeaderView as! UIProgressView).setProgress(array[2] as! Float, animated: true)
-                print("pregress \(array[2] as! Float)")
+            if let array = notification.object as? [Any] {
+                if (array.count > 2 && array[2] is Float) {
+                    if let progress = array[2] as? Float {
+                        if let progressView = tableView.tableHeaderView as? UIProgressView {
+                            progressView.setProgress(progress, animated: true)
+                        }
+                        print("pregress \(progress)")
+                    }
+                }
             }
         }
     }
-    
+
     func hideIndicator() {
         if (tableView.tableHeaderView is UIProgressView) {
-            (tableView.tableHeaderView as! UIProgressView).progress = 1.0
+            if let progressView = tableView.tableHeaderView as? UIProgressView {
+                progressView.progress = 1.0
+            }
             tableView.tableHeaderView = nil
         }
     }

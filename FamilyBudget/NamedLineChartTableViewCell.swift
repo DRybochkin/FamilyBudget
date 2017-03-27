@@ -6,8 +6,8 @@
 //  Copyright © 2017 Dmitry Rybochkin. All rights reserved.
 //
 
-import UIKit
 import Charts
+import UIKit
 
 class NamedLineChartTableViewCell: UITableViewCell {
     @IBOutlet weak var cellChart: LineChartView!

@@ -5,9 +5,11 @@
 //  Created by Dmitry Rybochkin on 28.12.16.
 //  Copyright © 2016 Dmitry Rybochkin. All rights reserved.
 //
+//  Посмотреть, какие решения существуют по VIPER и реализовать проект на ней
+//
 
-import UIKit
 import AlamofireNetworkActivityIndicator
+import UIKit
 import UserNotifications
 
 @UIApplicationMain
@@ -18,18 +20,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         //TODO show alert and shutdown
-        
+
         NetworkActivityIndicatorManager.shared.isEnabled = true
-        
+
         if (SQLiteDataStore.sharedInstance.initDatabase()) {
             registerForPushNotifications(application)
 
             SynchronizeHelper.synchronizeWithServer(needPost: false)
         }
-        
+
         NotificationCenter.default.addObserver(self, selector: #selector(synchronize(_:)), name: NSNotification.Name.FamilyBudgetDidChangeData, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(connectAndSynchronize), name: NSNotification.Name.FamilyBudgetDidChangeOptions, object: nil)
-        
+
         return true
     }
 
@@ -56,13 +58,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         // Saves changes in the application's managed object context before the application terminates.
     }
-    
+
     /*Push notifications*/
     func registerForPushNotifications(_ application: UIApplication) {
         if #available(iOS 10.0, *) {
             let center = UNUserNotificationCenter.current()
             center.delegate = self
-            center.requestAuthorization(options: [.badge, .alert , .sound]) { (granted, error) in
+            center.requestAuthorization(options: [.badge, .alert, .sound]) { (granted, _) in
                 if (granted) {
                     application.registerForRemoteNotifications()
                 }
@@ -73,46 +75,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             application.registerUserNotificationSettings(setting)
         }
     }
-    
+
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         var token = ""
-        
+
         for i in 0..<deviceToken.count {
             token += String(format: "%02.2hhx", arguments: [deviceToken[i]])
         }
-        
+
         print("didRegisterForRemoteNotificationsWithDeviceToken => \(token)")
         SQLiteDataStore.sharedInstance.options.notificationToken = token
         _ = DOOptionsDataHelper.update(item: SQLiteDataStore.sharedInstance.options)
-        if (SQLiteDataStore.sharedInstance.currentUser.userGroupKeyword.characters.count > 0){
+        if (SQLiteDataStore.sharedInstance.currentUser.userGroupKeyword.characters.isEmpty) {
             ServerImplementation.sharedInstance.connectToServer(user: SQLiteDataStore.sharedInstance.currentUser, callback: nil)
         }
     }
-    
+
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        
+
     }
 
     @available(*, deprecated: 10.0)
     func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings) {
-        if (!application.isRegisteredForRemoteNotifications || SQLiteDataStore.sharedInstance.options.notificationToken == ""){
+        if (!application.isRegisteredForRemoteNotifications || SQLiteDataStore.sharedInstance.options.notificationToken == "") {
             application.registerForRemoteNotifications()
         }
     }
-    
+
     //@available(iOS 10.0, *)
     //TODO добавить методы для ios 10
-    
+
     /*DataStore synchronixe with server*/
     func synchronize(_ notification: NSNotification) {
         SynchronizeHelper.upload(needPost: false, callback: {
             SynchronizeHelper.download()
         })
     }
-    
+
     func connectAndSynchronize() {
         SynchronizeHelper.synchronizeWithServer()
     }
-    
-}
 
+}

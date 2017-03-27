@@ -17,7 +17,7 @@ class TotalTableViewCell: UITableViewCell {
     @IBOutlet weak var costLabel: UILabel!
     @IBOutlet weak var profitLabel: UILabel!
     @IBOutlet weak var totalLabel: UILabel!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
